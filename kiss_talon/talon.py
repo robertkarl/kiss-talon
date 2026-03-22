@@ -22,6 +22,7 @@ class Talon:
     ])
     notify: str = "osascript"
     invocations: str = ""  # raw text under # Invocations
+    after: str | None = None
 
 
 def parse(path: Path) -> Talon:
@@ -52,7 +53,7 @@ def parse(path: Path) -> Talon:
     return Talon(
         id=meta.get("id", path.stem),
         created=created,
-        schedule=meta["schedule"],
+        schedule=meta.get("schedule", ""),
         prompt_body=prompt_body,
         last_run=last_run,
         permissions=meta.get("permissions", [
@@ -60,18 +61,22 @@ def parse(path: Path) -> Talon:
         ]),
         notify=meta.get("notify", "osascript"),
         invocations=invocations,
+        after=meta.get("after"),
     )
 
 
 def save(talon: Talon, path: Path) -> None:
     """Serialize a Talon back to markdown."""
-    meta = {
+    meta: dict = {
         "id": talon.id,
         "created": talon.created.isoformat(),
-        "schedule": talon.schedule,
         "notify": talon.notify,
         "permissions": talon.permissions,
     }
+    if talon.after:
+        meta["after"] = talon.after
+    if talon.schedule:
+        meta["schedule"] = talon.schedule
     if talon.last_run:
         meta["last_run"] = talon.last_run.isoformat()
 
@@ -83,6 +88,17 @@ def save(talon: Talon, path: Path) -> None:
         parts.append(talon.invocations)
 
     path.write_text("\n".join(parts))
+
+
+def get_latest_invocation(path: Path) -> str:
+    """Return the text under the last ## YYYY-MM-DD heading in a talon file."""
+    text = path.read_text()
+    # Find all ## headings in the invocations section
+    matches = list(re.finditer(r"^## \d{4}-\d{2}-\d{2}[^\n]*\n", text, re.MULTILINE))
+    if not matches:
+        return ""
+    last = matches[-1]
+    return text[last.end():].strip()
 
 
 def append_invocation(path: Path, text: str) -> None:

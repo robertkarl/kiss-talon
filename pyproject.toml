@@ -3,10 +3,10 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["kisstalon*"]
+include = ["kiss_talon*"]
 
 [project]
-name = "kisstalon"
+name = "kiss_talon"
 version = "0.1.0"
 description = "Lightweight agent orchestrator using cron + Claude CLI"
 requires-python = ">=3.10"
@@ -15,4 +15,4 @@ dependencies = [
 ]
 
 [project.scripts]
-kisstalon = "kisstalon.cli:main"
+kiss_talon = "kiss_talon.cli:main"

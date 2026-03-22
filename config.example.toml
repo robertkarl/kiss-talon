@@ -3,7 +3,7 @@ default = "osascript"
 
 [notify.ntfy]
 url = "https://ntfy.example.com"
-topic = "kisstalon"
+topic = "kiss_talon"
 
 [claude]
 # additional flags passed to claude CLI on every run
