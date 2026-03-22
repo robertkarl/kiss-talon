@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
 from datetime import datetime
@@ -26,7 +27,11 @@ extra_flags = ""
 """
 
 CRON_COMMENT = "# kiss_talon tick"
-CRON_LINE = "*/10 * * * * kiss_talon tick"
+
+
+def _cron_line() -> str:
+    binary = shutil.which("kiss_talon") or sys.argv[0]
+    return f"*/10 * * * * {binary} tick"
 
 
 def cmd_init(args: argparse.Namespace) -> None:
@@ -48,7 +53,8 @@ def cmd_init(args: argparse.Namespace) -> None:
         existing = ""
 
     if "kiss_talon tick" not in existing:
-        new_crontab = existing.rstrip() + f"\n{CRON_COMMENT}\n{CRON_LINE}\n"
+        cron_line = _cron_line()
+        new_crontab = existing.rstrip() + f"\n{CRON_COMMENT}\n{cron_line}\n"
         subprocess.run(
             ["crontab", "-"],
             input=new_crontab,

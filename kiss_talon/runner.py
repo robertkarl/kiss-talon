@@ -42,10 +42,12 @@ def _build_claude_cmd(
 ) -> list[str]:
     allowed = ",".join(talon.permissions)
     prompt = (
-        f"You are a kiss_talon agent. Read the talon file at {path}. "
-        f"Do the task described in the prompt body. "
-        f"Append your findings under '# Invocations' with today's date as a ## heading. "
-        f"If something urgent is found, output a line starting with 'NOTIFY:' followed by the message."
+        f"You are a kiss_talon agent running a scheduled task.\n\n"
+        f"Task:\n{talon.prompt_body}\n\n"
+        f"After completing the task, append your output to the talon file at {path} "
+        f"under '# Invocations' with today's date as a ## heading.\n\n"
+        f"If you have a message for the user, start the line with 'NOTIFY:' to trigger a notification. "
+        f"If you choose not to perform the task, explain why — your response will still be logged."
     )
     if trigger_context is not None:
         prompt += (
@@ -56,7 +58,7 @@ def _build_claude_cmd(
         "claude",
         "--print",
         "--allowedTools", allowed,
-        "--prompt", prompt,
+        "-p", prompt,
     ]
     extra = config.get("claude", {}).get("extra_flags", "")
     if extra:
@@ -77,6 +79,10 @@ def run_talon(
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
         output = result.stdout
+        if result.stderr:
+            output += f"\n[STDERR]\n{result.stderr}"
+        if result.returncode != 0:
+            output += f"\n[EXIT CODE {result.returncode}]"
     except subprocess.TimeoutExpired:
         output = "ERROR: Claude timed out after 5 minutes"
     except FileNotFoundError:

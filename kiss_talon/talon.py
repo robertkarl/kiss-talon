@@ -43,8 +43,10 @@ def parse(path: Path) -> Talon:
     invocations = parts[1] if len(parts) > 1 else ""
 
     last_run = meta.get("last_run")
-    if isinstance(last_run, str):
+    if isinstance(last_run, str) and last_run:
         last_run = datetime.fromisoformat(last_run)
+    else:
+        last_run = None
 
     created = meta.get("created", datetime.now())
     if isinstance(created, str):

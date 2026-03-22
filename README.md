@@ -6,6 +6,8 @@ kiss_talon includes a Claude Code skill, so in a chat you can just say:
 
 > Add a nightly talon that checks macrumors.com and 9to5mac.com for news about the next Mac Mini generation. Give it web fetch and web search permissions.
 
+![Dialog notification from a mac-mini-news talon](assets/mac-mini-news.png)
+
 A markdown file is the database for one talon. It holds the schedule, permissions, context, and invocations.
 
 ```markdown
@@ -13,7 +15,7 @@ A markdown file is the database for one talon. It holds the schedule, permission
 id: mac-mini-news
 created: '2026-03-22T10:00:00'
 schedule: nightly
-notify: osascript
+notify: dialog
 permissions:
 - WebFetch
 - WebSearch
